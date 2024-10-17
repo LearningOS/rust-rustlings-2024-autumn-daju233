@@ -2,11 +2,12 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
+use core::cmp::Ordering;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -22,6 +23,13 @@ impl<T> Node<T> {
         }
     }
 }
+
+// impl <T> PartialOrd for LinkedList<T>{
+//     fn partial_cmp(&self,other:&T)-> Option<Ordering>{
+        
+//     }
+// }
+
 #[derive(Debug)]
 struct LinkedList<T> {
     length: u32,
@@ -34,7 +42,6 @@ impl<T> Default for LinkedList<T> {
         Self::new()
     }
 }
-
 impl<T> LinkedList<T> {
     pub fn new() -> Self {
         Self {
@@ -70,13 +77,47 @@ impl<T> LinkedList<T> {
         }
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+    where T: PartialOrd+Clone
 	{
 		//TODO
 		Self {
             length: 0,
             start: None,
             end: None,
+        };
+        let mut new_list = LinkedList::<T>::new();
+        let mut aNode = list_a.start;
+        let mut bNode = list_b.start;
+    unsafe{        
+        while aNode.is_some()&&bNode.is_some(){
+            let a_node = aNode.unwrap();
+            let b_node = bNode.unwrap();
+
+            let val_a = (*a_node.as_ptr()).val.clone();
+            let val_b = (*b_node.as_ptr()).val.clone();
+            if val_a>val_b{
+                new_list.add(val_b);
+                bNode=(*b_node.as_ptr()).next;
+            }else{
+                new_list.add(val_a);
+                aNode=(*a_node.as_ptr()).next;
+            }
         }
+        while aNode.is_some(){
+            let a_node = aNode.unwrap();
+            let val_a = std::ptr::read(a_node.as_ptr()).val;
+            new_list.add(val_a);
+            aNode=(*a_node.as_ptr()).next;
+    }       
+        while bNode.is_some(){
+            let b_node = bNode.unwrap();
+            let val_b = std::ptr::read(b_node.as_ptr()).val;
+            new_list.add(val_b);
+            bNode=(*b_node.as_ptr()).next;
+    }
+        }
+
+        new_list
 	}
 }
 
