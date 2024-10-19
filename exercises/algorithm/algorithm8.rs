@@ -1,8 +1,8 @@
 /*
 	queue
-	This question requires you to use queues to implement the functionality of the stac
+	This question requires you to use queues to implement the functionality of the stack
 */
-// I AM NOT DONE
+
 
 #[derive(Debug)]
 pub struct Queue<T> {
@@ -68,13 +68,22 @@ impl<T> myStack<T> {
     }
     pub fn push(&mut self, elem: T) {
         //TODO
+        self.q1.enqueue(elem);
     }
     pub fn pop(&mut self) -> Result<T, &str> {
+        if self.q1.size()==0 {return Err("Stack is empty");}
         //TODO
-		Err("Stack is empty")
+        let length = self.q1.size();
+        for i in 0..length-1{
+         let temp = self.q1.dequeue().unwrap();
+         self.q1.enqueue(temp);
+        }
+        return self.q1.dequeue();
+
     }
     pub fn is_empty(&self) -> bool {
 		//TODO
+        if self.q1.size()>0 {return false;}
         true
     }
 }

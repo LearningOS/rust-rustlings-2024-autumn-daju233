@@ -38,6 +38,14 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.items.push(value);
+        self.count += 1;
+        let mut idx = self.count;
+
+        while idx > 1 && (self.comparator)(&self.items[idx], &self.items[idx / 2]) == true {
+            self.items.swap(idx, idx / 2);
+            idx /= 2;
+        };//加入后不断上浮对父节点进行比较直到到达顶点或小/大于父节点
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +66,13 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+        let left_child = self.left_child_idx(idx);
+        let right_child = self.right_child_idx(idx);
+        if right_child > self.count || (self.comparator)(&self.items[left_child], &self.items[right_child]) == true {
+            left_child
+        } else {
+            right_child
+        }//right_child不存在或左节点比右节点大/小
     }
 }
 
@@ -79,14 +93,32 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default+Copy,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
-    }
+        if !self.is_empty() {
+            self.items.swap(1, self.count);
+            let res = self.items.swap_remove(self.count);
+            self.count -= 1;
+            
+            // SWIM
+            let mut idx: usize = 1;
+            let mut smallest_child_idx = self.smallest_child_idx(idx);
+            while smallest_child_idx <= self.count && (self.comparator)(&self.items[smallest_child_idx], &self.items[idx]) {
+                self.items.swap(smallest_child_idx, idx);
+                idx = smallest_child_idx;
+                smallest_child_idx = self.smallest_child_idx(smallest_child_idx);
+            };
+            Some(res)
+        } else {
+            None
+        }
+    }//如果堆不为空，交换顶点和最小节点，然后检测下沉，如果顶点小/大于子节点，则不断下沉交换。
+    //因为add的上浮操作导致堆的顶点的下方是无序的，需要不断下沉保证堆的性质
+    
 }
 
 pub struct MinHeap;
